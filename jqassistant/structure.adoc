@@ -63,6 +63,8 @@ MATCH
 WHERE
     p1.fqn = p3.fqn
     AND p2.fqn = p4.fqn
+    // Packages do have self-dependencies in some cases
+    AND NOT p3.fqn = p4.fqn
     AND NOT (p1)-[:MAY_DEPEND_ON]->(p2)
     AND NOT (p3)-[:TECHNICAL_DEBT]->(p4)
 RETURN
