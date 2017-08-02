@@ -58,12 +58,16 @@ RETURN
 [source,cypher,role=constraint,requiresConcepts="dependency:TransitivePackageDependencies, documented:TechnicalDebt",severity=critical]
 ----
 MATCH
-    (p1:PlantUml:Package)-[:MAY_DEPEND_ON]->(p2:PlantUml:Package),
-    (p3:Java:Package)-[:DEPENDS_ON]->(p4:Java:Package)
+    (p3:Java:Package)-[:DEPENDS_ON]->(p4:Java:Package),
+    (p1:PlantUml:Package), (p2:PlantUml:Package)
 WHERE
-    p1.fqn = p4.fqn
-    AND p2.fqn = p3.fqn
+    p1.fqn = p3.fqn
+    AND p2.fqn = p4.fqn
+    // Packages do have self-dependencies in some cases
+    AND NOT p3.fqn = p4.fqn
+    AND NOT (p1)-[:MAY_DEPEND_ON]->(p2)
     AND NOT (p3)-[:TECHNICAL_DEBT]->(p4)
 RETURN
-    p3.fqn + "-->" + p4.fqn AS WrongDirection;
+    p3.fqn + "-->" + p4.fqn AS WrongDirection
+ORDER BY WrongDirection ASC;
 ----
